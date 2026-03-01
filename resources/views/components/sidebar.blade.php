@@ -84,27 +84,18 @@ $menuItems = MenuHelper::getMenuItems('left_sidebar');
                 @endphp
                 @foreach($children as $child)
                   @php
-                    // Mantém a mesma regra flexível do MenuHelper:
-                    // se show_menu não vier no payload, considera true.
-                    $childShowMenu = $child['show_menu'] ?? true;
-                    $childIsMenu = $child['is_menu'] ?? true;
-                    $canRenderChild = !($childShowMenu === false || $childShowMenu === 0 || $childShowMenu === '0' || $childIsMenu === false || $childIsMenu === 0 || $childIsMenu === '0');
+                    $childUrl = MenuHelper::processUrl($child['url'] ?? '#');
+                    if ($childUrl === '#') {
+                      $childUrl = MenuHelper::resolveUrlFromItemKey($child);
+                    }
+                    $isActive = MenuHelper::isRouteActive($childUrl);
                   @endphp
-                  @if($canRenderChild)
-                    @php
-                      $childUrl = MenuHelper::processUrl($child['url'] ?? '#');
-                      if ($childUrl === '#') {
-                        $childUrl = MenuHelper::resolveUrlFromItemKey($child);
-                      }
-                      $isActive = MenuHelper::isRouteActive($childUrl);
-                    @endphp
-                    <li class="nav-item">
-                      <a class="nav-link {{ $isActive ? 'active' : '' }}" href="{{ $childUrl }}" target="{{ $child['target'] ?? '_self' }}">
-                        <i class="{{ $child['icon'] ?? 'mdi mdi-circle' }} menu-icon me-2"></i>
-                        {{ $child['name'] ?? $child['short_name'] ?? 'Item' }}
-                      </a>
-                    </li>
-                  @endif
+                  <li class="nav-item">
+                    <a class="nav-link {{ $isActive ? 'active' : '' }}" href="{{ $childUrl }}" target="{{ $child['target'] ?? '_self' }}">
+                      <i class="{{ $child['icon'] ?? 'mdi mdi-circle' }} menu-icon me-2"></i>
+                      {{ $child['name'] ?? $child['short_name'] ?? 'Item' }}
+                    </a>
+                  </li>
                 @endforeach
               </ul>
             </div>
